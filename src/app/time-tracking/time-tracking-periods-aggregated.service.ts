@@ -44,8 +44,8 @@ export class TimeTrackingPeriodsAggregatedService {
 
   }
 
-  getTimeSpent(itemId: ItemId, includeSubItems: boolean, timeRange: TimeRange): Observable<DurationMs> {
-    this.timeTrackingPeriodsService.getPeriods
+  getTimeSpent(itemId: ItemId, includeSubItems: boolean, timeRange: TimeRange)/*: Observable<DurationMs>*/ {
+    // this.timeTrackingPeriodsService.getPeriods
 
   }
 }

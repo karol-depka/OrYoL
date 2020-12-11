@@ -4,7 +4,10 @@ import { debugLog } from '../utils/log'
 import { TimeService } from '../core/time.service'
 import { HasItemData } from '../tree-model/has-item-data'
 import { DataItemsService } from '../core/data-items.service'
-import { TimeTrackingPeriodsService } from './time-tracking-periods.service'
+import {
+  TimeTrackingPeriod,
+  TimeTrackingPeriodsService,
+} from './time-tracking-periods.service'
 
 export type TimeTrackable = HasItemData
 
@@ -58,6 +61,7 @@ export class TTPausePatch implements TTPatch {
 export class TimeTrackedEntry implements TimeTrackingPersistentData {
 
   private timeoutHandles = []
+  private period: TimeTrackingPeriod
 
   public get isTrackingNow() {
     // return this.wasTracked && ! this.isPaused
