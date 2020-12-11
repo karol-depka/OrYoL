@@ -4,6 +4,7 @@ import { debugLog } from '../utils/log'
 import { TimeService } from '../core/time.service'
 import { HasItemData } from '../tree-model/has-item-data'
 import { DataItemsService } from '../core/data-items.service'
+import { TimeTrackingPeriodsService } from './time-tracking-periods.service'
 
 export type TimeTrackable = HasItemData
 
@@ -97,7 +98,9 @@ export class TimeTrackedEntry implements TimeTrackingPersistentData {
 
   constructor(
     public timeTrackingService: TimeTrackingService,
-    // public timeTrackable: TimeTrackable,
+    public timeTrackingPeriodsService: TimeTrackingPeriodsService,
+
+  // public timeTrackable: TimeTrackable,
     public timeTrackable: TimeTrackable,
 
     public whenFirstStarted?: Date,
@@ -144,6 +147,7 @@ export class TimeTrackedEntry implements TimeTrackingPersistentData {
     this.whenCurrentPauseStarted = null
     this.patchItemTimeTrackingData(dataItemPatch)
     this.timeTrackingService.emitTimeTrackedEntry(this)
+    this.period = this.timeTrackingPeriodsService.onPeriodStart(this)
   }
 
   pauseOrNoop() {
@@ -164,6 +168,7 @@ export class TimeTrackedEntry implements TimeTrackingPersistentData {
     this.patchItemTimeTrackingData(dataItemPatch)
     this.clearTimeouts()
     this.timeTrackingService.emitTimeTrackedEntry(this)
+    this.timeTrackingPeriodsService.onPeriodEnd(this)
   }
 
   private clearTimeouts() {
@@ -237,6 +242,7 @@ export class TimeTrackingService {
   constructor(
     public timeService: TimeService,
     public dataItemsService: DataItemsService,
+    private timeTrackingPeriodsService: TimeTrackingPeriodsService,
   ) {
     // console.log('TimeTrackingService constructor()')
     // console.trace('TimeTrackingService constructor()')
@@ -285,7 +291,7 @@ export class TimeTrackingService {
   public obtainEntryForItem(timeTrackedItem: TimeTrackable) {
     let entry = this.mapItemToEntry.get(timeTrackedItem)
     if ( ! entry ) {
-      entry = new TimeTrackedEntry(this, timeTrackedItem)
+      entry = new TimeTrackedEntry(this, this.timeTrackingPeriodsService, timeTrackedItem)
       this.mapItemToEntry.set(timeTrackedItem, entry)
     }
     return entry
