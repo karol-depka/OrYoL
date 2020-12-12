@@ -5,6 +5,7 @@ import { ItemId } from '../db/DbItem'
 import { uuidv4 } from '../utils/utils'
 import { firestore1 } from '../db-firestore/firestore-tree.service'
 import { firestore } from 'firebase'
+import { errorAlert } from '../utils/log'
 
 export type TimeTrackingPeriodId = string
 
@@ -16,6 +17,10 @@ export class TimeTrackingPeriod {
     public itemId: ItemId,
     public start: firestore.Timestamp,
     public end : firestore.Timestamp | null /* null instead of missing, to be able to query for non-finished periods ! */,
+    // TODO: approximate duration (in case manually entered
+    // TODO: cancelled / is*Revoked* for when user forgets to stop tracking; but we still wanna show that tracking was started, in timeline
+    // -- or `revoke` to save bytes
+    // TODO: deleted / archived (undoable)
   ) {
   }
 }
@@ -36,8 +41,15 @@ export class TimeTrackingPeriodsService {
   }
 
   onPeriodEnd(entry: TimeTrackedEntry) {
-    let period: TimeTrackingPeriod
-    // period.end = Timestamp.now()
+    let period: TimeTrackingPeriod = entry.currentPeriod
+    if ( ! entry.currentPeriod ) {
+      errorAlert('timetracking ! entry.currentPeriod -- TODO: need to load from DB (any periods with end==null and set at beginning')
+      return
+    }
+    period.end = firestore.Timestamp.now()
+    this.coll.doc(period.id).update({
+      end: period.end
+    }) // TODO id
 
     // TODO: update in DB
   }
@@ -50,7 +62,8 @@ export class TimeTrackingPeriodsService {
       null,
     )
     // TODO: push to DB collection "TimeTrackedEntry
-    this.coll.add(Object.assign({}, period))
+    // this.coll.add(Object.assign({}, period))
+    this.coll.doc(period.id).set(Object.assign({}, period))
     return period
 //
 //     FIXME

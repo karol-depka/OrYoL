@@ -60,8 +60,9 @@ export class TTPausePatch implements TTPatch {
 
 export class TimeTrackedEntry implements TimeTrackingPersistentData {
 
+  public currentPeriod ? : TimeTrackingPeriod
+
   private timeoutHandles = []
-  private period: TimeTrackingPeriod
 
   public get isTrackingNow() {
     // return this.wasTracked && ! this.isPaused
@@ -151,7 +152,7 @@ export class TimeTrackedEntry implements TimeTrackingPersistentData {
     this.whenCurrentPauseStarted = null
     this.patchItemTimeTrackingData(dataItemPatch)
     this.timeTrackingService.emitTimeTrackedEntry(this)
-    this.period = this.timeTrackingPeriodsService.onPeriodStart(this)
+    this.currentPeriod = this.timeTrackingPeriodsService.onPeriodStart(this)
   }
 
   pauseOrNoop() {
@@ -173,6 +174,7 @@ export class TimeTrackedEntry implements TimeTrackingPersistentData {
     this.clearTimeouts()
     this.timeTrackingService.emitTimeTrackedEntry(this)
     this.timeTrackingPeriodsService.onPeriodEnd(this)
+    this.currentPeriod = undefined
   }
 
   private clearTimeouts() {
