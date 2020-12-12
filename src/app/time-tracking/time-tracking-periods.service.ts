@@ -36,8 +36,18 @@ export class TimeTrackingPeriodsService {
 
   constructor(
   ) {
+    // this.queryNotFinishedPeriods().get().then(queryResult => {
+    //   console.log(`TimeTrackingPeriodTest query`, queryResult)
+    // })
+    this.queryNotFinishedPeriods().onSnapshot((x) => {
+      console.log(`queryNotFinishedPeriods().onSnapshot`, x)
+    })
     console.log( `firestore1.collection(\`TimeTrackingPeriodTest\`).add({testing: 'test'}) `)
     // coll.add({testing: 'test'})
+  }
+
+  private queryNotFinishedPeriods() {
+    return this.coll.where('end', '==', null)
   }
 
   onPeriodEnd(entry: TimeTrackedEntry) {
