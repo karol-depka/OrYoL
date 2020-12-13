@@ -6,6 +6,9 @@ import { uuidv4 } from '../utils/utils'
 import { firestore1 } from '../db-firestore/firestore-tree.service'
 import { firestore } from 'firebase'
 import { errorAlert } from '../utils/log'
+import { CachedSubject } from '../utils/cachedSubject2/CachedSubject2'
+
+// https://lifesuite.innotopic.com/learn/item/lmm0ETQ1dvl9x6mJnNs5
 
 export type TimeTrackingPeriodId = string
 
@@ -23,6 +26,11 @@ export class TimeTrackingPeriod {
     // TODO: deleted / archived (undoable)
   ) {
   }
+
+  static fromRaw(raw: TimeTrackingPeriod) {
+    return raw
+    // TimeTrackingPeriod.prototype.constructor.
+  }
 }
 
 
@@ -34,6 +42,8 @@ export class TimeTrackingPeriodsService {
 
   coll = firestore1.collection(`TimeTrackingPeriodTest`)
 
+  activePeriods$ = new CachedSubject<TimeTrackingPeriod[] | null | undefined>(undefined)
+
   constructor(
   ) {
     // this.queryNotFinishedPeriods().get().then(queryResult => {
@@ -41,12 +51,18 @@ export class TimeTrackingPeriodsService {
     // })
     this.queryNotFinishedPeriods().onSnapshot((x) => {
       console.log(`queryNotFinishedPeriods().onSnapshot`, x)
+      for ( let doc of x.docs ) {
+        console.log(`tt data`, doc.data())
+        console.log(`tt itemId`, doc.data().itemId)
+      }
+      const array = x.docs.map(doc => TimeTrackingPeriod.fromRaw(doc.data() as TimeTrackingPeriod))
+      this.activePeriods$.next(array)
     })
-    console.log( `firestore1.collection(\`TimeTrackingPeriodTest\`).add({testing: 'test'}) `)
+    // console.log( `firestore1.collection(\`TimeTrackingPeriodTest\`).add({testing: 'test'}) `)
     // coll.add({testing: 'test'})
   }
 
-  private queryNotFinishedPeriods() {
+  private queryNotFinishedPeriods(): firestore.Query {
     return this.coll.where('end', '==', null)
   }
 
