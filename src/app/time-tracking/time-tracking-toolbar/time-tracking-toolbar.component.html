@@ -1,9 +1,9 @@
 
-<ng-container
-  *ngIf="(timeTrackingPeriodsService.activePeriods$ | async)?.length let trackedCount"
->
-  Tracking {{trackedCount}}
-</ng-container>
+<!--<ng-container-->
+<!--  *ngIf="(timeTrackingPeriodsService.activePeriods$ | async)?.length let trackedCount"-->
+<!--&gt;-->
+<!--  Tracking {{trackedCount}}-->
+<!--</ng-container>-->
 
 <app-time-tracking-cell
   *ngFor="let entry of (timeTrackingService.timeTrackedEntries$ | async)"
